@@ -21,6 +21,8 @@ const run = args => execSync(args, handleError);
 /* DON'T FORGET TO ADD NEW SETS TO CONCAT AT END */
 const sets = 5;
 
+console.log(chalk.magentaBright('Starting set download. This could take a while...'));
+
 // remove old data
 // we do this separately so if something fails to delete/extract, it's easy to find and fix the problem
 for (let i = 1; i <= sets; i++) {
