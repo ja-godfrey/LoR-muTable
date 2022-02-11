@@ -7,6 +7,5 @@ export default createStore({
    },
    actions: {
    },
-   modules: {
-   },
+   modules: {},
 });

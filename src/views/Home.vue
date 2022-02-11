@@ -1,23 +1,30 @@
 <script>
 export default {
    name: 'Home',
-
-   async created() {
-      console.log('created');
-      // try {
-      //    const data = await ky.get('https://americas.api.riotgames.com/lor/ranked/v1/leaderboards', {
-      //       headers: { 'X-Riot-Token': process.env.VUE_RIOT_TOKEN },
-      //    }).json();
-      //    console.log(data);
-      // } catch (error) {
-      //    console.log(error);
-      // }
-   },
 };
 </script>
 
 <template>
-   <div class="home">
-      <img alt="Vue logo" src="../assets/logo.png">
+   <div class="global-page home">
+      <router-link to="vault?deck=new" class="link">
+         <div class="tile">Vault</div>
+      </router-link>
    </div>
 </template>
+
+<style lang="scss" scoped>
+.home {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+
+   .tile {
+      height: 300px;
+      width: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid white;
+   }
+}
+</style>

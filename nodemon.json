@@ -1,0 +1,15 @@
+{
+   "restartable": "rs",
+   "watch": [
+      "server/"
+   ],
+   "ignore": [
+      ".git",
+      "node_modules/**/node_modules",
+      "server/seed.js"
+   ],
+   "env": {
+      "NODE_ENV": "development"
+   },
+   "ext": "js json"
+}
