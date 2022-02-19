@@ -1,29 +1,50 @@
 <script>
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useState } from '@/hooks';
 import Deck from '@/data/Deck';
+import Modal from '../BaseModal.vue';
 import DisplayInput from '../DisplayInput.vue';
+import MatchHistoryItem from './MatchHistoryItem.vue';
+import DeckHistoryItem from './DeckHistoryItem.vue';
 
 export default {
    name: 'deck-view',
 
-   components: { DisplayInput },
+   components: { Modal, DisplayInput, MatchHistoryItem, DeckHistoryItem },
 
    emits: ['deckOrItemModified', 'handleSave', 'handleDelete'],
 
    setup(props, { emit }) {
       const [changesMade, setChangesMade] = useState(false);
+      const showAddMatch = ref(false);
+      const tags = ref(props.deck.tags);
       const [name, setName] = useState(props.deck.name);
       const [styledName, setStyledName] = useState(props.deck.styledName);
       const [deckCode, setDeckCode] = useState(props.deck.deckCode);
       const [notes, setNotes] = useState(props.deck.notes);
 
-      watch([name, styledName, notes, deckCode], () => {
+      watch([tags, name, styledName, notes, deckCode], () => {
          if (!changesMade.value) {
             setChangesMade(true);
             emit('deckOrItemModified', true);
          }
       });
+
+      const addTag = () => {
+         const tagName = prompt('Add a tag.');
+         const tagExists = tags.value.find(tag => tag.toLowerCase() === tagName.toLowerCase());
+         if (tagExists) {
+            alert('That tag already exists for this deck.');
+         } else if (tagName && !tagName.trim()) {
+            alert('Tag cannot be empty.');
+         } else if (tagName) {
+            tags.value = [...tags.value, tagName.trim().toLowerCase()];
+         }
+      };
+
+      const removeTag = tagName => {
+         tags.value = tags.value.filter(t => t !== tagName);
+      };
 
       const saveChanges = () => {
          const body = {
@@ -31,12 +52,14 @@ export default {
             styledName: styledName.value,
             deckCode: deckCode.value,
             notes: notes.value,
+            tags: tags.value,
          };
          setChangesMade(false);
          emit('handleSave', props.deck._id, body);
       };
 
       const cancelChanges = () => {
+         tags.value = props.deck.tags;
          setName(props.deck.name);
          setStyledName(props.deck.styledName);
          setDeckCode(props.deck.deckCode);
@@ -53,10 +76,14 @@ export default {
       return {
          changesMade,
          setChangesMade,
+         showAddMatch,
+         addTag,
+         removeTag,
          saveChanges,
          cancelChanges,
          deleteDeck,
 
+         tags,
          name,
          setName,
          styledName,
@@ -76,11 +103,23 @@ export default {
 
 <template>
    <div class="global-page deck">
-      <div class="data">
+      <Modal :show="showAddMatch" />
+
+      <section class="tags">
+         <button v-for="tag in tags" :key="tag" class="tag" @click="removeTag(tag)">
+            {{ tag }}
+         </button>
+         <button v-if="tags ? tags.length === 0 : true" @click="addTag">+ tag</button>
+         <button v-else @click="addTag">+</button>
+         <span v-if="tags ? tags.length <= 2 : true" class="hint">aggro, papercraft, expansion x...</span>
+      </section>
+
+      <div class="data row">
          <DisplayInput
             name="name"
             label="Name"
             :value="name"
+            :error="!name && 'Required'"
             @save="setName"
          />
          <DisplayInput
@@ -93,6 +132,7 @@ export default {
             label="Deck Code"
             name="deckCode"
             :value="deckCode"
+            :error="!deckCode && 'Required'"
             @save="setDeckCode"
          />
          <DisplayInput
@@ -102,47 +142,102 @@ export default {
             placeholder="Shift+Enter for new line"
             :value="notes"
             @save="setNotes"
+            readonly
          />
+      </div>
 
-         <section class="battles">
-            <div>Wins: {{ deck.wins }}</div>
-            <div>Losses: {{ deck.losses }}</div>
-         </section>
-
-         <button :disabled="!changesMade" @click="saveChanges">Save Changes</button>
+      <div class="buttons">
+         <button class="save" :disabled="!changesMade" @click="saveChanges">Save Changes</button>
          <button :disabled="!changesMade" @click="cancelChanges">Cancel Changes</button>
-         <button @click="deleteDeck">Delete Deck</button>
+         <button class="delete" @click="deleteDeck">Delete Deck</button>
+      </div>
+
+      <div class="history row">
+         <div class="title">
+            <h2>Match History</h2>
+            <button @click="showAddMatch = !showAddMatch">+</button>
+         </div>
+         <MatchHistoryItem v-for="match in deck.matches"
+            :key="match.id"
+            :match="match"
+         />
+      </div>
+
+      <div class="history row">
+         <h2>Deck History</h2>
+         <DeckHistoryItem v-for="version in deck.history"
+            :key="version.deckCode"
+            :version="version"
+         />
       </div>
    </div>
 </template>
 
 <style lang="scss" scoped>
+
 .deck {
    height: 100%;
-   width: 100%;
+   width: 70%;
    display: flex;
-   border-left: 1px solid white;
-   padding-left: 10px;
+   flex-direction: column;
+   padding: 20px 10px;
 
-   .data {
+   .row {
       width: 100%;
       display: flex;
       flex-direction: column;
+   }
 
-      .battles {
-         width: 100%;
-         height: 60px;
-         display: flex;
-         justify-content: space-between;
-         align-items: center;
-         border-radius: 3px;
-         padding: 0px 20px;
+   .tags {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+
+      button {
+         background: $background;
+         border: 1px solid lightblue;
+         border-radius: 10px;
+         color: $color;
          cursor: pointer;
-         transition: background 0.1s ease-in-out;
-         &:hover { background: #fff2; }
+         transition: background .1s ease-in-out;
+         &:not(:last-child) { margin-right: 6px; }
+         &:hover { background: $success; }
+         &.tag:hover { background: $error; }
       }
 
-      button { background: lightblue; margin-top: 20px; }
+      .hint {
+         height: 100%;
+         display: flex;
+         align-items: center;
+         color: #ccc8;
+         font-size: 12px;
+      }
+   }
+
+   .buttons {
+      width: 100%;
+      display: flex;
+
+      button {
+         height: 24px;
+         border: none;
+         border-radius: 3px;
+         &.save { margin-right: 5px; }
+         &.delete { margin-left: auto; }
+      }
+   }
+
+   .history {
+      margin-top: 20px;
+      text-align: left;
+
+      .title {
+         width: 100%;
+         display: flex;
+
+         button { margin-left: auto; }
+      }
+
    }
 }
 </style>

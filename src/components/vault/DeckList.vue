@@ -8,7 +8,7 @@ export default {
    name: 'deck-list',
 
    setup(props) {
-      const deckList = computed(() => DeckEncoder.decode(props.deckCode).map(summary => {
+      const deckList = computed(() => props.deckCode ? DeckEncoder.decode(props.deckCode).map(summary => {
          const card = cards.find(c => c.cardCode === summary.code);
          return {
             name: card.name,
@@ -18,7 +18,7 @@ export default {
             count: summary.count,
             code: summary.code,
          };
-      }));
+      }) : []);
 
       const sortedList = orderBy(deckList.value, ['cost', 'name'], 'asc');
 
@@ -50,10 +50,11 @@ export default {
 
 <style lang="scss" scoped>
 .deck-list {
-   width: 100%;
+   height: 100%;
+   width: 30%;
    display: flex;
    flex-direction: column;
-   padding: 0px 3px;
+   padding: 20px 3px;
 
    .card {
       $card-height: 30px;
@@ -63,24 +64,24 @@ export default {
       justify-content: space-between;
       align-items: center;
       margin-bottom: 3px;
-      border: 1px solid white;
+      border: 1px solid;
       border-radius: 3px;
       font-size: 12px;
       &.Freljord {
          border-color: $Freljord;
-         .count { background: linear-gradient(to right, transparent, $Freljord); }
+         background: linear-gradient(to right, $background, $Freljord);
       }
       &.Noxus {
          border-color: $Noxus;
-         .count { background: linear-gradient(to right, transparent, $Noxus); }
+         background: linear-gradient(to right, $background, $Noxus);
       }
       &.Shadow-Isles {
          border-color: $Shadow-Isles;
-         .count { background: linear-gradient(to right, transparent, $Shadow-Isles); }
+         background: linear-gradient(to right, $background, $Shadow-Isles);
       }
       &.Shurima {
          border-color: $Shurima;
-         .count { background: linear-gradient(to right, transparent, $Shurima); }
+         background: linear-gradient(to right, $background, $Shurima);
       }
 
       .number {
@@ -97,7 +98,8 @@ export default {
 
          .cost {
             @extend .number;
-            border: 1px solid white;
+            background: $background;
+            border: 1px solid $color;
             border-radius: 50%;
             margin-right: 5px;
          }
@@ -107,7 +109,6 @@ export default {
 
       .count {
          @extend .number;
-         background: linear-gradient(to right, transparent, tan);
       }
    }
 }

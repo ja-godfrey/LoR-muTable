@@ -12,12 +12,14 @@
       "test": "echo \"Error: no test specified\" && exit 1",
       "dragon:core": "node ./data_dragon/core.js",
       "dragon:sets": "node ./data_dragon/sets.js",
-      "dragon:all": "npm run dragon:core && npm run dragon:sets"
+      "dragon:all": "npm run dragon:core && npm run dragon:sets",
+      "decode": "node ./Decoder.js"
    },
    "main": "server/server.js",
    "dependencies": {
       "chalk": "^4.1.2",
       "core-js": "^3.6.5",
+      "dayjs": "^1.10.7",
       "dotenv": "^16.0.0",
       "express": "^4.17.2",
       "got": "^11.8.3",

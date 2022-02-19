@@ -12,15 +12,15 @@
 #app {
    height: 100vh;
    min-height: 100vh;
-   background: #323231;
+   background: $background;
    -webkit-font-smoothing: antialiased;
    -moz-osx-font-smoothing: grayscale;
    text-align: center;
-   color: white;
+   color: $color;
 }
 
 .link {
-   color: white;
+   color: $color;
    text-decoration: none;
 }
 

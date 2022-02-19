@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 const regions = [
    'Bandle City',
@@ -14,9 +15,13 @@ const regions = [
 ];
 
 const Match = {
+   id: ObjectId,
    outcome: { type: String, enum: ['win', 'loss'] },
+   initiative: { type: Number, enum: [0, 1] },
    enemyRegions: [{ type: String, enum: regions }],
    enemyChamps: [String],
+   notes: String,
+   date: { type: Date, default: () => Date.now() },
 };
 
 const deck = new mongoose.Schema({
@@ -28,12 +33,13 @@ const deck = new mongoose.Schema({
    champions: [String],
    regions: [{ type: String, enum: regions }],
    notes: String,
-   tags: [String],
+   tags: { type: [String], default: [] },
    matches: [Match],
    history: [{
       name: String,
       deckCode: String,
       matches: [Match],
+      notes: String,
       retiredOn: Date,
    }],
    createdOn: { type: Date, default: () => Date.now() },
