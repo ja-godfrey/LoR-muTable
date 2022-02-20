@@ -18,12 +18,8 @@ const findUserDecks = async userId => {
       'regions',
       'notes',
       'tags',
+      'favorite',
    ]));
-};
-
-const getDeckCode = async deckId => {
-   const deck = await Deck.find({ _id: deckId });
-   return deck.deckCode;
 };
 
 const getDeckRegions = deckCode => {
@@ -112,13 +108,15 @@ module.exports = {
          regions = getDeckRegions(req.body.deckCode);
 
          // copy current deck into history if deck code is new
-         const currentDeck = await Deck.find(req.params.id);
+         const currentDeck = await Deck.findById(req.params.id);
          if (req.body.deckCode !== currentDeck.deckCode) {
+            console.log(chalk.yellowBright('UPDATING DECK HISTORY'));
             history = [
                {
                   name: currentDeck.name,
                   deckCode: currentDeck.deckCode,
                   matches: currentDeck.matches,
+                  tags: currentDeck.tags,
                   retiredOn: Date.now(),
                },
                ...currentDeck.history,
@@ -148,11 +146,10 @@ module.exports = {
 
    addMatchToDeck: async (req, res) => {
       const { id } = req.params;
-      const { match } = req.body;
 
       try {
          await Deck.findOneAndUpdate({ _id: id }, {
-            '$push': { matches: match },
+            '$push': { matches: req.body },
          });
 
          const decks = await findUserDecks(getUserId(req));

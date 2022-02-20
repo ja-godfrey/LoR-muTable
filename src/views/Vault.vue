@@ -15,6 +15,7 @@ export default {
       const router = useRouter();
       const route = useRoute();
       const api = useApi();
+      const view = ref('');
       const decks = ref([]);
       const search = ref('');
       const [unsaved, setUnsaved] = useState(false);
@@ -29,7 +30,6 @@ export default {
       const filteredDecks = computed(() => decks.value.filter(deck => {
          const query = search.value.toLowerCase();
          const champs = deck.champions.map(champ => champ.toLowerCase());
-         console.log(deck);
 
          return deck.name.toLowerCase().includes(query)
             || deck.tags.includes(query)
@@ -44,8 +44,15 @@ export default {
          const deck = await api.get(`/deck/${route.params.id}`);
          if (!deck) return router.replace('/vault');
 
+         setTimeout(() => {
+            view.value = 'view-mobile-info';
+         }, 50);
          return deck.data;
       }, {});
+
+      const reopenDeckMobile = id => {
+         if (id === route.params.id) view.value = 'view-mobile-info';
+      };
 
       const saveDeck = async (id, body) => {
          let response;
@@ -77,6 +84,7 @@ export default {
       };
 
       return {
+         view,
          search,
          unsaved,
          setUnsaved,
@@ -85,6 +93,8 @@ export default {
          filteredDecks,
          selectedDeck,
          isLoadingDeck,
+
+         reopenDeckMobile,
       };
    },
 };
@@ -101,7 +111,7 @@ export default {
             />
 
             <router-link class="link" to="/vault">
-               <button class="new-deck" :disabled="unsaved">+ New Deck</button>
+               <button class="new-deck" :disabled="unsaved" @click="view = 'view-mobile-info'">+ New Deck</button>
             </router-link>
          </div>
 
@@ -110,21 +120,26 @@ export default {
                :key="deck._id"
                :to="`/vault/${deck._id}`"
                :class="['link', 'deck', { selected: deck._id === $route.params.id }]"
+               @click="reopenDeckMobile(deck._id)"
             >
-               {{ deck.name }}
+               <span>{{ deck.name }}</span>
+               <span v-if="deck.favorite">&#10033;</span>
+               <span v-else />
             </router-link>
          </div>
       </section>
 
-      <section v-if="!isLoadingDeck" class="deck-info-wrapper">
+      <section v-if="!isLoadingDeck" :class="['deck-info-wrapper', view]">
          <DeckInfo
             :deck="selectedDeck"
+            @mobileBack="view = ''"
+            @mobileForward="view = 'view-mobile-deck'"
             @deckOrItemModified="setUnsaved"
             @handleSave="saveDeck"
             @handleDelete="deleteDeck"
          />
 
-         <DeckList :deckCode="selectedDeck.deckCode" />
+         <DeckList :deckCode="selectedDeck.deckCode" @mobileBack="view = 'view-mobile-info'" />
       </section>
       <section v-else class="deck-info-wrapper loading">
          Loading Deck...
@@ -136,6 +151,11 @@ export default {
 .vault {
    display: grid;
    grid-template-columns: 45% 55%;
+
+   @media (max-width: $media-width) {
+      overflow-x: hidden;
+      grid-template-columns: 100vw 200vw;
+   }
 
    button:disabled { opacity: 0.5; }
 
@@ -152,7 +172,6 @@ export default {
 
          .new-deck {
             background: $background-alt;
-            border: none;
             border: 1px solid $color;
             border-radius: 3px;
             padding: 6px;
@@ -173,12 +192,16 @@ export default {
          grid-auto-rows: $deck-height;
          grid-gap: 15px;
 
+         @media (max-width: $media-width) {
+            grid-template-columns: 1fr;
+         }
+
          .deck {
             height: $deck-height;
             width: 100%;
             background: $background-alt;
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
             border: 1px solid $color;
             border-radius: 3px;
@@ -196,6 +219,13 @@ export default {
       border-left: 1px solid black;
       border-radius: 20px 0px 0px 20px;
       box-shadow: -2px 0px 6px #0008;
+      transition: transform 0.2s ease-in-out;
+
+      @media (max-width: $media-width) {
+         transform: translateX(10px);
+         &.view-mobile-info { transform: translateX(-100vw); }
+         &.view-mobile-deck { transform: translateX(-200vw); }
+      }
 
       &.loading {
          justify-content: center;

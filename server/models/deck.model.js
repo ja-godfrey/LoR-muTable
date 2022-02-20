@@ -25,21 +25,23 @@ const Match = {
 };
 
 const deck = new mongoose.Schema({
-   name: String,
+   name: { type: String, required: true },
    styledName: String,
-   ownerId: String,
+   ownerId: { type: String, required: true },
    riot_deck_id: String,
-   deckCode: String,
+   deckCode: { type: String, required: true },
    champions: [String],
    regions: [{ type: String, enum: regions }],
    notes: String,
    tags: { type: [String], default: [] },
+   favorite: { type: Boolean, default: false },
    matches: [Match],
    history: [{
-      name: String,
-      deckCode: String,
+      name: { type: String, required: true },
+      deckCode: { type: String, required: true },
       matches: [Match],
       notes: String,
+      tags: [String],
       retiredOn: Date,
    }],
    createdOn: { type: Date, default: () => Date.now() },

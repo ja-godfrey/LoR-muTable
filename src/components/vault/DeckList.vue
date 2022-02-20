@@ -7,6 +7,8 @@ import cards from '@/data/sets';
 export default {
    name: 'deck-list',
 
+   emits: ['mobile-back'],
+
    setup(props) {
       const deckList = computed(() => props.deckCode ? DeckEncoder.decode(props.deckCode).map(summary => {
          const card = cards.find(c => c.cardCode === summary.code);
@@ -33,6 +35,8 @@ export default {
 
 <template>
    <div v-if="deckList" class="deck-list">
+      <span class="back" @click="$emit('mobile-back')">BACK</span>
+
       <a v-for="card in deckList"
          :key="card.code"
          :class="['card', 'link', card.region]"
@@ -54,7 +58,18 @@ export default {
    width: 30%;
    display: flex;
    flex-direction: column;
-   padding: 20px 3px;
+   padding: 20px 10px;
+
+   .back {
+      width: 100%;
+      margin-bottom: 20px;
+      display: none;
+   }
+
+   @media (max-width: $media-width) {
+      width: 100vw;
+      .back { display: flex; }
+   }
 
    .card {
       $card-height: 30px;

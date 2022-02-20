@@ -25,7 +25,6 @@ export default {
    width: 100%;
    display: flex;
    flex-direction: column;
-   margin-top: 10px;
    border-radius: 3px;
    padding: 6px;
    &:hover { background: #fff1; }

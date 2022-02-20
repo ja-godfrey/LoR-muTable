@@ -1,11 +1,14 @@
 <script>
 import { ref, watch } from 'vue';
 import { useState } from '@/hooks';
+import ButtonRow from './TripleButtonRow.vue';
 
 export default {
    name: 'display-input',
 
    emits: ['save'],
+
+   components: { ButtonRow },
 
    setup(props, { emit }) {
       const inputRef = ref(null);
@@ -102,11 +105,12 @@ export default {
             @keypress="handleEnter"
             @focus="$event.target.select()"
          />
-         <div class="controls">
-            <button @click="handleSave">Apply</button>
-            <button @click="handleCancel">Cancel</button>
+         <ButtonRow class="controls">
             <button v-if="!textarea" class="copy" @click="handleCopy">Copy</button>
-         </div>
+            <span v-else /> <!-- placeholder to keep other buttons aligned on right -->
+            <template #second><button @click="handleCancel">Cancel</button></template>
+            <template #third><button @click="handleSave">Apply</button></template>
+         </ButtonRow>
       </div>
 
       <div v-else
@@ -120,7 +124,7 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-$element-spacing: 3px;
+$element-spacing: 4px;
 
 .display-input {
    width: 100%;
@@ -170,12 +174,15 @@ $element-spacing: 3px;
          margin-top: $element-spacing;
 
          button {
-            border: none;
+            height: 20px;
+            background: $background;
+            border: 1px solid $color;
             border-radius: 3px;
-            &:first-child { margin-right: 5px; }
+            &:last-child { margin-left: 10px; }
+            &:not(:first) { margin-right: auto; }
          }
 
-         .copy { margin-left: auto; }
+         // .copy { margin-right: auto; }
       }
    }
 
