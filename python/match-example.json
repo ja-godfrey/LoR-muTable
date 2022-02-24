@@ -1,0 +1,28 @@
+{
+    "metadata": {
+        "data_version": "2",
+        "match_id": "6144e238-ba20-4b94-8717-8dae6c85accc",
+        "participants": [
+            "j1taabgQLjlY0kFSJRbhqy-g7P5KXMIb68JqMsVZJuVJiN3gXjvcEIZP650MCKn0VyR1GQ2EfkaoGg"
+        ]
+    },
+    "info": {
+        "game_mode": "Power_XP1",
+        "game_type": "",
+        "game_start_time_utc": "2022-02-16T14:24:27.0630927+00:00",
+        "game_version": "live_3_02_7",
+        "players": [
+            {
+                "puuid": "j1taabgQLjlY0kFSJRbhqy-g7P5KXMIb68JqMsVZJuVJiN3gXjvcEIZP650MCKn0VyR1GQ2EfkaoGg",
+                "deck_id": "",
+                "deck_code": "",
+                "factions": [
+                    "faction_Ionia_Name"
+                ],
+                "game_outcome": "win",
+                "order_of_play": 1
+            }
+        ],
+        "total_turn_count": 7
+    }
+}
