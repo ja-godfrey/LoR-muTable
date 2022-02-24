@@ -4,6 +4,7 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 import './reset.css';
+import '@vueform/multiselect/themes/default.css';
 
 createApp(App)
    .use(store)

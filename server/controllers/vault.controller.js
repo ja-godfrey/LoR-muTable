@@ -1,17 +1,39 @@
 const { DeckEncoder } = require('runeterra');
+const pick = require('lodash/pick');
+const uniq = require('lodash/uniq');
+const chalk = require('chalk');
 const Deck = require('../models/deck.model');
 const getUserId = require('../utils/getUserId');
+const REGIONS = require('../data/regions.constants');
 
-const exposeDeck = deck => {
-   const {
-      _id, name, styledName, deckCode, champions, regions, notes,
-   } = deck;
-   return { _id, name, styledName, deckCode, champions, regions, notes };
-};
-
+// get user deck catalog and expose allowed properties
 const findUserDecks = async userId => {
    const decks = await Deck.find({ ownerId: userId });
-   return decks.map(_deck => exposeDeck(_deck));
+   return decks.map(deck => pick(deck, [
+      '_id',
+      'name',
+      'styledName',
+      'deckCode',
+      'champions',
+      'regions',
+      'notes',
+      'tags',
+      'favorite',
+   ]));
+};
+
+const getDeckRegions = deckCode => {
+   let regions = [];
+
+   try {
+      const deckList = DeckEncoder.decode(deckCode);
+      const factions = deckList.map(card => REGIONS[card.faction.shortCode]);
+      regions = uniq(factions);
+   } catch (error) {
+      console.log(chalk.yellow('Deck could not be decoded...'), chalk.white(error));
+   }
+
+   return regions;
 };
 
 module.exports = {
@@ -46,10 +68,14 @@ module.exports = {
    createDeck: async (req, res) => {
       const userId = getUserId(req);
       let regions = [];
+      let tags = [];
 
       if (req.body.deckCode) {
-         const deckList = DeckEncoder.decode(req.body.deckCode);
-         regions = deckList.regions;
+         regions = getDeckRegions(req.body.deckCode);
+      }
+
+      if (req.body.tags) {
+         tags = req.body.tags.map(tag => tag.toLowerCase());
       }
 
       try {
@@ -57,6 +83,7 @@ module.exports = {
             ...req.body,
             ownerId: userId,
             regions,
+            tags,
          });
          const newDeck = await deck.save();
          const decks = await findUserDecks(userId);
@@ -64,6 +91,8 @@ module.exports = {
          res.status(200).send({
             data: decks,
             newId: newDeck._id,
+            ...(regions.length === 0)
+               && { warning: 'The DeckEncoder failed to decode the deck code. Stored regions may not be accurate.' },
          });
       } catch (error) {
          res.status(400).send({ error });
@@ -72,19 +101,55 @@ module.exports = {
 
    updateDeck: async (req, res) => {
       let regions = [];
+      let history = [];
 
       if (req.body.deckCode) {
-         const deckList = DeckEncoder.decode(req.body.deckCode);
-         console.log(deckList);
-         return;
-         regions = deckList.regions;
+         // get new regions
+         regions = getDeckRegions(req.body.deckCode);
+
+         // copy current deck into history if deck code is new
+         const currentDeck = await Deck.findById(req.params.id);
+         if (req.body.deckCode !== currentDeck.deckCode) {
+            console.log(chalk.yellowBright('UPDATING DECK HISTORY'));
+            history = [
+               {
+                  name: currentDeck.name,
+                  deckCode: currentDeck.deckCode,
+                  matches: currentDeck.matches,
+                  tags: currentDeck.tags,
+                  retiredOn: Date.now(),
+               },
+               ...currentDeck.history,
+            ];
+         }
       }
 
       try {
          await Deck.findOneAndUpdate({ _id: req.params.id }, {
             ...req.body,
             ...(regions.length > 0) && { regions },
+            /* if deckCode has been updated, add current deck to history and refresh matches */
+            ...(history.length > 0) && { matches: [], history },
             updatedOn: Date.now(),
+         });
+
+         const decks = await findUserDecks(getUserId(req));
+         res.status(200).send({
+            data: decks,
+            ...(regions.length === 0)
+               && { warning: 'The DeckEncoder failed to decode the deck code. Stored regions may not be accurate.' },
+         });
+      } catch (error) {
+         res.status(400).send({ error });
+      }
+   },
+
+   addMatchToDeck: async (req, res) => {
+      const { id } = req.params;
+
+      try {
+         await Deck.findOneAndUpdate({ _id: id }, {
+            '$push': { matches: req.body },
          });
 
          const decks = await findUserDecks(getUserId(req));

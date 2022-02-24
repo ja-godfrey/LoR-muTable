@@ -12,20 +12,32 @@
 #app {
    height: 100vh;
    min-height: 100vh;
-   background: #323231;
+   background: $background;
    -webkit-font-smoothing: antialiased;
    -moz-osx-font-smoothing: grayscale;
    text-align: center;
-   color: white;
+   color: $color;
 }
 
 .link {
-   color: white;
+   color: $color;
    text-decoration: none;
 }
 
 .global-page {
    height: 100%;
    width: 100%;
+}
+
+button {
+   color: $color;
+   border: 1px solid $color;
+   box-shadow: 0px 0px 4px #000;
+   cursor: pointer;
+   transition: all 0.1s ease-in-out;
+   &:disabled {
+      opacity: 0.5;
+      cursor: default;
+   }
 }
 </style>

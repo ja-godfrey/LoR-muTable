@@ -8,7 +8,7 @@ const routes = [
       component: Home,
    },
    {
-      path: '/vault',
+      path: '/vault/:id?',
       name: 'Vault',
       component: () => import('../views/Vault.vue'),
    },

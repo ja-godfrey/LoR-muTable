@@ -40,6 +40,8 @@ app.post('/api/decks/new', authCheck, vault.createDeck);
 app.put('/api/decks/:id', authCheck, vault.updateDeck);
 app.delete('/api/decks/:id', authCheck, vault.deleteDeck);
 
+app.post('/api/decks/:id/match', authCheck, vault.addMatchToDeck);
+
 app.get('/api/user/performance', authCheck, stats.userMatchPerformance);
 
 // const getData = async () => {
