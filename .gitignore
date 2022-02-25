@@ -27,3 +27,8 @@ pnpm-debug.log*
 /src/assets/core
 /src/data/core
 /src/data/sets
+/**/*.csv
+/**/*.png
+/**/*.pdf
+/**/*.jpeg
+/**.*.env
