@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const Deck = require('../models/deck.model');
 const getUserId = require('../utils/getUserId');
 const REGIONS = require('../data/regions.constants');
+const { cards } = require('../../src/data/sets/index.server');
 
 // get user deck catalog and expose allowed properties
 const findUserDecks = async userId => {
@@ -34,6 +35,15 @@ const getDeckRegions = deckCode => {
    }
 
    return regions;
+};
+
+const getDeckChampions = deckCode => {
+   return DeckEncoder.decode(deckCode)
+      .filter(card => {
+         const cardData = cards.find(c => c.cardCode === card.code);
+         return cardData.supertype === 'Champion';
+      })
+      .map(card => cards.find(c => c.cardCode === card.code).name);
 };
 
 module.exports = {
@@ -66,13 +76,14 @@ module.exports = {
    },
 
    createDeck: async (req, res) => {
-      const userId = getUserId(req);
-      let regions = [];
-      let tags = [];
-
-      if (req.body.deckCode) {
-         regions = getDeckRegions(req.body.deckCode);
+      if (!req.body.name || !req.body.deckCode) {
+         res.status(400).send({ error: 'Body must include name and deckCode properties' });
+         return;
       }
+
+      const userId = getUserId(req);
+      const regions = getDeckRegions(req.body.deckCode);
+      let tags = [];
 
       if (req.body.tags) {
          tags = req.body.tags.map(tag => tag.toLowerCase());
@@ -101,22 +112,27 @@ module.exports = {
 
    updateDeck: async (req, res) => {
       let regions = [];
+      let champions = [];
       let history = [];
 
       if (req.body.deckCode) {
-         // get new regions
-         regions = getDeckRegions(req.body.deckCode);
-
          // copy current deck into history if deck code is new
          const currentDeck = await Deck.findById(req.params.id);
          if (req.body.deckCode !== currentDeck.deckCode) {
             console.log(chalk.yellowBright('UPDATING DECK HISTORY'));
+
+            // get new regions and champs
+            regions = getDeckRegions(req.body.deckCode);
+            champions = getDeckChampions(req.body.deckCode);
+
             history = [
                {
                   name: currentDeck.name,
                   deckCode: currentDeck.deckCode,
                   matches: currentDeck.matches,
                   tags: currentDeck.tags,
+                  regions: currentDeck.regions,
+                  champions: currentDeck.champions,
                   retiredOn: Date.now(),
                },
                ...currentDeck.history,
@@ -127,8 +143,9 @@ module.exports = {
       try {
          await Deck.findOneAndUpdate({ _id: req.params.id }, {
             ...req.body,
+            /* if deckCode has been updated, add current deck to history, refresh matches, and get new regions/champs */
             ...(regions.length > 0) && { regions },
-            /* if deckCode has been updated, add current deck to history and refresh matches */
+            ...(champions.length > 0) && { champions },
             ...(history.length > 0) && { matches: [], history },
             updatedOn: Date.now(),
          });

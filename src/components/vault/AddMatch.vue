@@ -70,7 +70,7 @@ export default {
       class="multiselect"
       mode="tags"
       :options="optionSets.regions"
-      :closeOnSelect="false"
+      :closeOnSelect="regions.length >= 1"
       :multipleLabel="createMultipleDisplay"
       @change="v => regions = v"
       searchable
@@ -81,7 +81,7 @@ export default {
       class="multiselect"
       mode="tags"
       :options="optionSets.champions"
-      :closeOnSelect="false"
+      :closeOnSelect="champions.length >= 6"
       :multipleLabel="createMultipleDisplay"
       @change="v => champions = v"
       searchable

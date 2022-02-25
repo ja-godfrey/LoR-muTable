@@ -35,7 +35,7 @@ for (let i = 1; i <= sets; i++) {
 // retrieve data for each set -- we are not keeping card images
 for (let i = 1; i <= sets; i++) {
    // create tmp file, download and extract data
-   console.log(chalk.yellowBright(`Extracting set ${i}...`));
+   console.log(chalk.yellow(`Extracting set ${i}...`));
    fs.mkdirSync('./tmp', { recursive: false }, handleError);
    run(`curl.exe --output ./tmp/set.zip --url https://dd.b.pvp.net/latest/set${i}-lite-en_us.zip`);
    run('unzip ./tmp/set.zip -d ./tmp');
@@ -45,7 +45,7 @@ for (let i = 1; i <= sets; i++) {
 
    // remove top level tmp file and finish set extraction
    fs.rmdirSync('./tmp', { recursive: true }, handleError);
-   console.log(chalk.yellowBright(`Set ${i} extracted...`));
+   console.log(chalk.yellow(`Set ${i} extracted...`));
 }
 
-console.log(chalk.cyanBright('Success! Set data has been updated.'));
+console.log(chalk.cyan('Success! Set data has been updated.'));

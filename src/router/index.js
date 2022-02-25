@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { AuthenticationGuard } from 'vue-auth0-plugin';
 import Home from '../views/Home.vue';
 
 const routes = [
@@ -11,6 +12,7 @@ const routes = [
       path: '/vault/:id?',
       name: 'Vault',
       component: () => import('../views/Vault.vue'),
+      beforeEnter: [AuthenticationGuard],
    },
 ];
 

@@ -24,7 +24,6 @@ pnpm-debug.log*
 *.sw?
 
 # data
-/src/tempAuth.js
 /src/assets/core
 /src/data/core
 /src/data/sets

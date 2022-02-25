@@ -1,8 +1,9 @@
 <script>
-import { computed } from 'vue';
+import { computed, toRef } from 'vue';
 import orderBy from 'lodash/orderBy';
 import { DeckEncoder } from 'runeterra';
 import cards from '@/data/sets';
+import mapRegionToIcon from '@/helpers/mapRegionToIcon';
 
 export default {
    name: 'deck-list',
@@ -10,6 +11,7 @@ export default {
    emits: ['mobile-back'],
 
    setup(props) {
+      const regions = toRef(props, 'deckRegions');
       const deckList = computed(() => props.deckCode ? DeckEncoder.decode(props.deckCode).map(summary => {
          const card = cards.find(c => c.cardCode === summary.code);
          return {
@@ -23,12 +25,17 @@ export default {
       }) : []);
 
       const sortedList = orderBy(deckList.value, ['cost', 'name'], 'asc');
+      const regionIcons = regions.value.sort().map(region => mapRegionToIcon(region));
 
-      return { deckList: sortedList };
+      return {
+         deckList: sortedList,
+         regionIcons,
+      };
    },
 
    props: {
       deckCode: { type: String, default: '' },
+      deckRegions: { type: Array, default: () => ([]) },
    },
 };
 </script>
@@ -36,6 +43,10 @@ export default {
 <template>
    <div v-if="deckList" class="deck-list">
       <span class="back" @click="$emit('mobile-back')">BACK</span>
+
+      <span class="regions">
+         <img v-for="(icon, i) in regionIcons" :key="i" :src="icon" />
+      </span>
 
       <a v-for="card in deckList"
          :key="card.code"
@@ -71,8 +82,24 @@ export default {
       .back { display: flex; }
    }
 
+   .regions {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+
+      img {
+         height: 30px;
+         width: 30px;
+      }
+   }
+
    .card {
       $card-height: 30px;
+
+      @media (max-width: $media-width) {
+         $card-height: 40px;
+      }
+
       width: 100%;
       height: $card-height;
       display: flex;
@@ -82,6 +109,10 @@ export default {
       border: 1px solid;
       border-radius: 3px;
       font-size: 12px;
+      &.Bandle-City {
+         border-color: $Bandle-City;
+         background: linear-gradient(to right, $background, $Bandle-City);
+      }
       &.Freljord {
          border-color: $Freljord;
          background: linear-gradient(to right, $background, $Freljord);
@@ -99,6 +130,10 @@ export default {
          background: linear-gradient(to right, $background, $Shurima);
       }
 
+      @media (max-width: $media-width) {
+         font-size: 16px;
+      }
+
       .number {
          height: $card-height;
          width: $card-height;
@@ -114,7 +149,7 @@ export default {
          .cost {
             @extend .number;
             background: $background;
-            border: 1px solid $color;
+            border: 2px outset $btn-hover;
             border-radius: 50%;
             margin-right: 5px;
          }

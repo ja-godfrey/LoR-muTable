@@ -7,6 +7,6 @@ module.exports = {
    SI: 'Shadow Isles',
    BW: 'Bilge Water',
    SH: 'Shurima',
-   MT: 'Targon', // ?
-   BC: 'Bandle City', // ?
+   MT: 'Targon',
+   BC: 'Bandle City',
 };
