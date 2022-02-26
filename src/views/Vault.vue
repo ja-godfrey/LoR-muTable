@@ -11,6 +11,16 @@ export default {
 
    components: { DeckInfo, DeckList },
 
+   beforeRouteUpdate() {
+      if (this.unsaved && this.$route.params.id) {
+         const confirmed = window.confirm('You have unsaved changes. Continue?');
+         if (!confirmed) return false;
+         else this.setUnsaved(false);
+      }
+
+      return true;
+   },
+
    setup() {
       const router = useRouter();
       const route = useRoute();
@@ -19,6 +29,8 @@ export default {
       const decks = ref([]);
       const search = ref('');
       const [unsaved, setUnsaved] = useState(false);
+
+      const selectedDeck = ref({});
 
       // eslint-disable-next-line
       (async function() {
@@ -38,16 +50,18 @@ export default {
             || (deck.regions[1] && deck.regions[1].toLowerCase().includes(query));
       }));
 
-      const [selectedDeck, isLoadingDeck] = useAsyncComputed(async () => {
-         if (!route.params.id || route.params.id === 'new') return new Deck();
-
-         const deck = await api.get(`/deck/${route.params.id}`);
+      const getDeck = async deckId => {
+         const deck = await api.get(`/deck/${deckId}`);
          if (!deck) return router.replace('/vault');
 
-         setTimeout(() => {
-            view.value = 'view-mobile-info';
-         }, 50);
+         selectedDeck.value = deck.data;
+         setTimeout(() => { view.value = 'view-mobile-info'; }, 50);
          return deck.data;
+      };
+
+      const [, isLoadingDeck] = useAsyncComputed(async () => {
+         if (!route.params.id || route.params.id === 'new') selectedDeck.value = new Deck();
+         else await getDeck(route.params.id);
       }, {});
 
       const reopenDeckMobile = id => {
@@ -57,13 +71,26 @@ export default {
       const saveDeck = async (id, body) => {
          let response;
 
-         if (route.params.id === 'new') {
-            response = await api.post('/decks/new', body);
-            decks.value = response.data;
-            router.push(`/vault?deck=${response.newId}`);
-         } else {
-            response = await api.put(`/decks/${id}`, body);
-            decks.value = response.data;
+         try {
+            if (!route.params.id) {
+               response = await api.post('/decks/new', body);
+               decks.value = response.data;
+               router.push(`/vault/${response.newId}`);
+            } else {
+               // console.log(body.deckCode, selectedDeck.value.deckCode);
+               // return;
+
+               if (body.deckCode !== selectedDeck.value.deckCode) {
+                  const confirmed = window.confirm('The deck code has been changed. This will retire your current deck into history. Do you want to continue?');
+                  if (!confirmed) return;
+               }
+
+               response = await api.put(`/decks/${id}`, body);
+               decks.value = response.data;
+               await getDeck(selectedDeck.value._id);
+            }
+         } catch (error) {
+            console.log('FAILED TO SAVE OR UPDATE');
          }
 
          setUnsaved(false);
@@ -75,11 +102,20 @@ export default {
             try {
                const response = await api.delete(`/decks/${id}`);
                decks.value = response.data;
-               router.replace('/vault?deck=new');
+               router.replace('/vault');
             } catch (error) {
                console.log('FAILED TO DELETE');
             }
             setUnsaved(false);
+         }
+      };
+
+      const addMatch = async (deckId, match) => {
+         try {
+            await api.post(`/decks/${deckId}/match`, match);
+            await getDeck(deckId);
+         } catch (error) {
+            console.log(error);
          }
       };
 
@@ -90,6 +126,7 @@ export default {
          setUnsaved,
          saveDeck,
          deleteDeck,
+         addMatch,
          filteredDecks,
          selectedDeck,
          isLoadingDeck,
@@ -111,7 +148,7 @@ export default {
             />
 
             <router-link class="link" to="/vault">
-               <button class="new-deck" :disabled="unsaved" @click="view = 'view-mobile-info'">+ New Deck</button>
+               <button class="new-deck" @click="view = 'view-mobile-info'" :disabled="!selectedDeck._id">+ New Deck</button>
             </router-link>
          </div>
 
@@ -131,15 +168,20 @@ export default {
 
       <section v-if="!isLoadingDeck" :class="['deck-info-wrapper', view]">
          <DeckInfo
-            :deck="selectedDeck"
-            @mobileBack="view = ''"
-            @mobileForward="view = 'view-mobile-deck'"
+            :deckData="selectedDeck"
             @deckOrItemModified="setUnsaved"
             @handleSave="saveDeck"
             @handleDelete="deleteDeck"
+            @addMatch="addMatch"
+            @mobileBack="view = ''"
+            @mobileForward="view = 'view-mobile-deck'"
          />
 
-         <DeckList :deckCode="selectedDeck.deckCode" @mobileBack="view = 'view-mobile-info'" />
+         <DeckList
+            :deckCode="selectedDeck.deckCode"
+            :deckRegions="selectedDeck.regions"
+            @mobileBack="view = 'view-mobile-info'"
+         />
       </section>
       <section v-else class="deck-info-wrapper loading">
          Loading Deck...
@@ -177,6 +219,7 @@ export default {
             padding: 6px;
             color: $color;
             cursor: pointer;
+            &:hover { background: $btn-hover; }
          }
       }
 
@@ -206,6 +249,7 @@ export default {
             border: 1px solid $color;
             border-radius: 3px;
             padding: 10px;
+            text-align: left;
             transition: box-shadow .15s ease-in-out;
             &.selected { box-shadow: 0px 0px 10px $success; }
          }
@@ -215,7 +259,8 @@ export default {
    .deck-info-wrapper {
       width: 100%;
       display: flex;
-      background: $background-alt;
+      // background: $background-alt;
+      background: linear-gradient(to right, #{$background-alt} 60%, #{$background});
       border-left: 1px solid black;
       border-radius: 20px 0px 0px 20px;
       box-shadow: -2px 0px 6px #0008;

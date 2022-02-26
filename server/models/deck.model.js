@@ -37,15 +37,18 @@ const deck = new mongoose.Schema({
    favorite: { type: Boolean, default: false },
    matches: [Match],
    history: [{
+      id: ObjectId,
       name: { type: String, required: true },
       deckCode: { type: String, required: true },
-      matches: [Match],
+      regions: { type: [String], default: () => [] },
+      champions: { type: [String], default: () => [] },
+      matches: { type: [Match], default: () => [] },
       notes: String,
-      tags: [String],
+      tags: { type: [String], default: () => [] },
       retiredOn: Date,
    }],
    createdOn: { type: Date, default: () => Date.now() },
    updatedOn: { type: Date, default: () => Date.now() },
-});
+}, { collection: process.env.MONGOOSE_DECK_TARGET });
 
 module.exports = mongoose.model('Deck', deck);

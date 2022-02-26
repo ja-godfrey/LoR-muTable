@@ -1,0 +1,1 @@
+module.exports = 'https://americas.api.riotgames.com/lor';

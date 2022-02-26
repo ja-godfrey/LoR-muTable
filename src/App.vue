@@ -1,4 +1,15 @@
+<script>
+import Header from '@/components/Header/Header.vue';
+
+export default {
+   name: 'app',
+
+   components: { Header },
+};
+</script>
+
 <template>
+   <Header />
    <router-view/>
 </template>
 
@@ -25,13 +36,14 @@
 }
 
 .global-page {
-   height: 100%;
+   height: calc(100% - #{$header-height});
    width: 100%;
 }
 
 button {
    color: $color;
    border: 1px solid $color;
+   border-radius: 3px;
    box-shadow: 0px 0px 4px #000;
    cursor: pointer;
    transition: all 0.1s ease-in-out;

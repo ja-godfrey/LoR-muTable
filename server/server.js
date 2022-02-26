@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const chalk = require('chalk');
 const got = require('got');
 
@@ -9,11 +10,13 @@ const seed = require('./db/seed');
 
 const vault = require('./controllers/vault.controller');
 const stats = require('./controllers/stats.controller');
+const trolling = require('./controllers/trolling');
 
 const app = express();
 
 app.use(helmet());
 app.use(express.json());
+app.use(cors());
 
 /* connect to database */
 mongoose.connect(process.env.MONGOOSE_CONNECTION);
@@ -43,6 +46,8 @@ app.delete('/api/decks/:id', authCheck, vault.deleteDeck);
 app.post('/api/decks/:id/match', authCheck, vault.addMatchToDeck);
 
 app.get('/api/user/performance', authCheck, stats.userMatchPerformance);
+
+app.post('/api/trolling/:puuid', trolling.beginTrolling);
 
 // const getData = async () => {
 //    try {

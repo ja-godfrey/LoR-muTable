@@ -1,6 +1,6 @@
 <script>
-import { ref, watch } from 'vue';
-import { useApi, useState } from '@/hooks';
+import { computed, ref, toRef, watch } from 'vue';
+import { useState } from '@/hooks';
 import Deck from '@/data/Deck';
 import Modal from '../Modal.vue';
 import AddMatch from './AddMatch.vue';
@@ -21,72 +21,65 @@ export default {
       DeckHistoryItem,
    },
 
-   emits: ['mobile-back', 'mobile-forward', 'deckOrItemModified', 'handleSave', 'handleDelete'],
+   emits: ['mobile-back', 'mobile-forward', 'deckOrItemModified', 'handleSave', 'handleDelete', 'addMatch'],
 
    setup(props, { emit }) {
-      const api = useApi();
       const addMatchRef = ref(null);
 
+      const deck = toRef(props, 'deckData');
+      const initDeckCode = computed(() => deck.value._id ? deck.value.deckCode : '');
       const [changesMade, setChangesMade] = useState(false);
       const showAddMatch = ref(false);
-      const tags = ref(props.deck.tags);
-      const [name, setName] = useState(props.deck.name);
-      const [styledName, setStyledName] = useState(props.deck.styledName);
-      const [deckCode, setDeckCode] = useState(props.deck.deckCode);
-      const [notes, setNotes] = useState(props.deck.notes);
-      const [favorite, setFavorite] = useState(props.deck.favorite);
 
-      watch([tags, name, styledName, notes, deckCode, favorite], () => {
-         if (!changesMade.value) {
-            setChangesMade(true);
-            emit('deckOrItemModified', true);
-         }
-      });
+      watch(
+         () => [deck.value.name, deck.value.styledName, deck.value.deckCode, deck.value.notes, deck.value.tags, deck.value.favorite],
+         () => {
+            if (!changesMade.value) {
+               setChangesMade(true);
+               emit('deckOrItemModified', true);
+            }
+         },
+      );
 
       const addTag = () => {
          const tagName = prompt('Add a tag.');
          if (!tagName) return;
 
-         const tagExists = tags.value.find(tag => tag.toLowerCase() === tagName.toLowerCase());
+         const tagExists = deck.value.tags.find(tag => tag.toLowerCase() === tagName.toLowerCase());
          if (tagExists) {
             alert('That tag already exists for this deck.');
          } else if (tagName && !tagName.trim()) {
             alert('Tag cannot be empty.');
          } else {
-            tags.value = [...tags.value, tagName.trim().toLowerCase()];
+            deck.value.tags = [...deck.value.tags, tagName.trim().toLowerCase()];
          }
       };
 
       const removeTag = tagName => {
-         tags.value = tags.value.filter(t => t !== tagName);
+         deck.value.tags = deck.value.tags.filter(t => t !== tagName);
       };
 
       const saveChanges = () => {
+         if (initDeckCode.value !== '' && deck.value.deckCode !== initDeckCode.value) {
+            const confirmed = window.confirm('This will retire your current deck into this deck\'s history. Continue?');
+            if (!confirmed) return;
+         }
+
          const body = {
-            name: name.value,
-            styledName: styledName.value,
-            deckCode: deckCode.value,
-            notes: notes.value,
-            tags: tags.value,
-            favorite: favorite.value,
+            name: deck.value.name,
+            styledName: deck.value.styledName,
+            deckCode: deck.value.deckCode,
+            notes: deck.value.notes,
+            tags: deck.value.tags,
+            favorite: deck.value.favorite,
          };
          setChangesMade(false);
-         emit('handleSave', props.deck._id, body);
-      };
-
-      const cancelChanges = () => {
-         tags.value = props.deck.tags;
-         setName(props.deck.name);
-         setStyledName(props.deck.styledName);
-         setDeckCode(props.deck.deckCode);
-         setNotes(props.deck.notes);
-         setChangesMade(false);
-         emit('deckOrItemModified', false);
+         emit('handleSave', props.deckData._id, body);
       };
 
       const deleteDeck = () => {
          setChangesMade(false);
-         emit('handleDelete', props.deck._id);
+         emit('handleDelete', props.deckData._id);
       };
 
       const addMatch = async () => {
@@ -105,17 +98,9 @@ export default {
             return;
          }
 
-         try {
-            await api.post(`/decks/${props.deck._id}/match`, {
-               outcome,
-               initiative,
-               enemyRegions: regions,
-               enemyChamps: champions,
-               notes: matchNotes,
-            });
-         } catch (error) {
-            console.log(error);
-         }
+         emit('addMatch', props.deckData._id, {
+            outcome, initiative, enemyRegions: regions, enemyChamps: champions, notes: matchNotes,
+         });
          showAddMatch.value = false;
       };
 
@@ -123,31 +108,19 @@ export default {
          addMatchRef,
          addMatch,
 
+         deck,
          changesMade,
          setChangesMade,
          showAddMatch,
          addTag,
          removeTag,
          saveChanges,
-         cancelChanges,
          deleteDeck,
-
-         tags,
-         name,
-         setName,
-         styledName,
-         setStyledName,
-         deckCode,
-         setDeckCode,
-         notes,
-         setNotes,
-         favorite,
-         setFavorite,
       };
    },
 
    props: {
-      deck: { type: Object, default: () => new Deck() },
+      deckData: { type: Object, default: () => new Deck() },
    },
 };
 </script>
@@ -169,56 +142,58 @@ export default {
       </span>
 
       <ButtonRow class="buttons">
-         <button class="delete" @click="deleteDeck">Delete Deck</button>
-         <template #second><button :disabled="!changesMade" @click="cancelChanges">Cancel Changes</button></template>
-         <template #third><button class="save" :disabled="!changesMade" @click="saveChanges">Save Changes</button></template>
+         <button v-if="deckData._id" class="delete" @click="deleteDeck">Delete Deck</button>
+         <span v-else />
+         <template #third><button class="save" :disabled="!changesMade" @click="saveChanges">
+            {{ deckData._id ?  'Save Changes' : 'Create Deck' }}
+         </button></template>
       </ButtonRow>
 
-      <section class="tags">
-         <button v-for="tag in tags" :key="tag" class="tag" @click="removeTag(tag)">
+      <section v-if="deckData._id" class="tags">
+         <button v-for="tag in deck.tags" :key="tag" class="tag" @click="removeTag(tag)">
             {{ tag }}
          </button>
-         <button v-if="tags ? tags.length === 0 : true" @click="addTag">+ tag</button>
+         <button v-if="deck.tags ? deck.tags.length === 0 : true" @click="addTag">+ tag</button>
          <button v-else @click="addTag">+</button>
-         <span v-if="tags ? tags.length <= 2 : true" class="hint">aggro, papercraft, expansion x...</span>
+         <span v-if="deck.tags ? deck.tags.length <= 2 : true" class="hint">aggro, dragons, expansion x...</span>
       </section>
 
       <div class="data row">
          <DisplayInput
             name="name"
             label="Name"
-            :value="name"
-            :error="!name && 'Required'"
-            @save="setName"
+            :value="deck.name"
+            :error="!deck.name && 'Required'"
+            @save="v => deck.name = v"
          />
          <DisplayInput
             name="styledName"
             label="Styled Name"
-            :value="styledName"
-            @save="setStyledName"
+            :value="deck.styledName"
+            @save="v => deck.styledName = v"
          />
          <DisplayInput
             label="Deck Code"
             name="deckCode"
-            :value="deckCode"
-            :error="!deckCode && 'Required'"
-            @save="setDeckCode"
+            :value="deck.deckCode"
+            :error="!deck.deckCode && 'Required'"
+            @save="v => deck.deckCode = v"
          />
          <DisplayInput
             textarea
             label="Notes"
             name="notes"
             placeholder="Shift+Enter for new line"
-            :value="notes"
-            @save="setNotes"
+            :value="deck.notes"
+            @save="v => deck.notes = v"
          />
          <span class="checkbox-wrapper">
-            <input id="favorite" type="checkbox" :checked="favorite" @input="setFavorite(!favorite)" />
+            <input id="favorite" type="checkbox" :checked="deck.favorite" @input="deck.favorite = !deck.favorite" />
             <label for="favorite">Favorite</label>
          </span>
       </div>
 
-      <div class="history row">
+      <div v-if="deck._id" class="history row">
          <div class="title">
             <h2>Match History</h2>
             <button @click="showAddMatch = !showAddMatch">+</button>
@@ -229,7 +204,7 @@ export default {
          />
       </div>
 
-      <div class="history row">
+      <div v-if="deck._id" class="history row">
          <h2>Deck History</h2>
          <DeckHistoryItem v-for="version in deck.history"
             :key="version.deckCode"
@@ -327,8 +302,8 @@ export default {
          display: flex;
 
          button {
-            height: 24px;
-            width: 24px;
+            height: 20px;
+            width: 20px;
             background: $background;
             border-radius: 50%;
             margin-left: auto;

@@ -32,4 +32,4 @@ fs.renameSync('./tmp/en_us/data', './src/data/core', handleError);
 
 // cleanup tmp data
 fs.rmdirSync('./tmp', { recursive: true }, handleError);
-console.log(chalk.cyanBright('Success! Core data has been updated.'));
+console.log(chalk.cyan('Success! Core data has been updated.'));

@@ -1,0 +1,23 @@
+export { default as allregions } from './core/regions/icon-all.png';
+export { default as bandlecity } from './core/regions/icon-bandlecity.png';
+export { default as bilgewater } from './core/regions/icon-bilgewater.png';
+export { default as demacia } from './core/regions/icon-demacia.png';
+export { default as freljord } from './core/regions/icon-freljord.png';
+export { default as ionia } from './core/regions/icon-ionia.png';
+export { default as noxus } from './core/regions/icon-noxus.png';
+export { default as piltoverandzaun } from './core/regions/icon-piltoverzaun.png';
+export { default as shadowisles } from './core/regions/icon-shadowisles.png';
+export { default as shurima } from './core/regions/icon-shurima.png';
+export { default as targon } from './core/regions/icon-targon.png';
+
+// export allregions;
+// export bandlecity;
+// export bilgewater;
+// export demacia;
+// export freljord;
+// export ionia;
+// export noxus;
+// export piltoverandzaun;
+// export shadowisles;
+// export shurima;
+// export targon;

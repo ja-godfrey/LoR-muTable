@@ -6,7 +6,7 @@ export default {
 
 <template>
    <div class="global-page home">
-      <router-link to="vault?deck=new" class="link">
+      <router-link to="vault" class="link">
          <div class="tile">Vault</div>
       </router-link>
    </div>
