@@ -50,6 +50,7 @@ button {
    &:disabled {
       opacity: 0.5;
       cursor: default;
+      &:hover { background: $background-alt !important; }
    }
 }
 </style>

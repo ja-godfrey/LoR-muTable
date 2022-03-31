@@ -257,13 +257,15 @@ export default {
    }
 
    .deck-info-wrapper {
+      height: 100%;
+      max-height: 100%;
       width: 100%;
       display: flex;
-      // background: $background-alt;
       background: linear-gradient(to right, #{$background-alt} 60%, #{$background});
       border-left: 1px solid black;
       border-radius: 20px 0px 0px 20px;
       box-shadow: -2px 0px 6px #0008;
+      overflow-y: auto;
       transition: transform 0.2s ease-in-out;
 
       @media (max-width: $media-width) {

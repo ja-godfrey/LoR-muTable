@@ -2,6 +2,7 @@
 import { computed, ref, toRef, watch } from 'vue';
 import { useState } from '@/hooks';
 import Deck from '@/data/Deck';
+import Button from '../Button.vue';
 import Modal from '../Modal.vue';
 import AddMatch from './AddMatch.vue';
 import DisplayInput from '../DisplayInput.vue';
@@ -13,6 +14,7 @@ export default {
    name: 'deck-view',
 
    components: {
+      Button,
       Modal,
       AddMatch,
       ButtonRow,
@@ -30,6 +32,10 @@ export default {
       const initDeckCode = computed(() => deck.value._id ? deck.value.deckCode : '');
       const [changesMade, setChangesMade] = useState(false);
       const showAddMatch = ref(false);
+
+      const matches = deck.value.matches
+         ? deck.value.matches.sort((a, b) => new Date(b.date) - new Date(a.date))
+         : [];
 
       watch(
          () => [deck.value.name, deck.value.styledName, deck.value.deckCode, deck.value.notes, deck.value.tags, deck.value.favorite],
@@ -84,10 +90,11 @@ export default {
 
       const addMatch = async () => {
          const {
-            outcome, initiative, regions, champions, notes: matchNotes,
+            outcome, type, initiative, regions, champions, notes: matchNotes,
          } = addMatchRef.value;
 
          if (!outcome
+            || type === null
             || initiative === null
             || regions.length <= 0
             || regions.length > 2
@@ -99,7 +106,7 @@ export default {
          }
 
          emit('addMatch', props.deckData._id, {
-            outcome, initiative, enemyRegions: regions, enemyChamps: champions, notes: matchNotes,
+            outcome, type, initiative, enemyRegions: regions, enemyChamps: champions, notes: matchNotes,
          });
          showAddMatch.value = false;
       };
@@ -109,6 +116,7 @@ export default {
          addMatch,
 
          deck,
+         matches,
          changesMade,
          setChangesMade,
          showAddMatch,
@@ -142,11 +150,13 @@ export default {
       </span>
 
       <ButtonRow class="buttons">
-         <button v-if="deckData._id" class="delete" @click="deleteDeck">Delete Deck</button>
+         <Button v-if="deckData._id" @click="deleteDeck" error>Delete Deck</Button>
          <span v-else />
-         <template #third><button class="save" :disabled="!changesMade" @click="saveChanges">
-            {{ deckData._id ?  'Save Changes' : 'Create Deck' }}
-         </button></template>
+         <template #third>
+            <Button :disabled="!changesMade" @click="saveChanges" success>
+               {{ deckData._id ?  'Save Changes' : 'Create Deck' }}
+            </Button>
+         </template>
       </ButtonRow>
 
       <section v-if="deckData._id" class="tags">
@@ -198,7 +208,7 @@ export default {
             <h2>Match History</h2>
             <button @click="showAddMatch = !showAddMatch">+</button>
          </div>
-         <MatchHistoryItem v-for="match in deck.matches"
+         <MatchHistoryItem v-for="match in matches"
             :key="match.id"
             :match="match"
          />
@@ -296,6 +306,7 @@ export default {
    .history {
       margin-top: 20px;
       text-align: left;
+      // overflow-y: auto;
 
       .title {
          width: 100%;

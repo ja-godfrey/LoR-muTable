@@ -24,6 +24,7 @@ export default {
 
    setup() {
       const outcome = ref('');
+      const type = ref('');
       const initiative = ref('');
       const regions = ref([]);
       const champions = ref([]);
@@ -38,6 +39,7 @@ export default {
          test,
 
          outcome,
+         type,
          initiative,
          regions,
          champions,
@@ -55,6 +57,13 @@ export default {
       label="name"
       :options="optionSets.outcomes"
       @change="v => outcome = v"
+   />
+
+   <label>Match Type</label>
+   <MultiSelect
+      class="multiselect"
+      :options="['AI', 'Friendly', 'Normal', 'Ranked']"
+      @change="v => type = v"
    />
 
    <label>Initiative</label>

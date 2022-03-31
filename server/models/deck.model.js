@@ -17,6 +17,7 @@ const regions = [
 const Match = {
    id: ObjectId,
    outcome: { type: String, enum: ['win', 'loss'] },
+   type: { type: String, enum: ['AI', 'Friendly', 'Normal', 'Ranked'] },
    initiative: { type: Number, enum: [0, 1] },
    enemyRegions: [{ type: String, enum: regions }],
    enemyChamps: [String],
