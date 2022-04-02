@@ -30,6 +30,7 @@ header {
 
    button {
       background: $success;
+      color: black;
    }
 }
 </style>
