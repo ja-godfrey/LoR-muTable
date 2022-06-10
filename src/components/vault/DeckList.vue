@@ -66,10 +66,12 @@ export default {
 <style lang="scss" scoped>
 .deck-list {
    height: 100%;
+   max-height: 100%;
    width: 30%;
    display: flex;
    flex-direction: column;
    padding: 20px 10px;
+   overflow-y: auto;
 
    .back {
       width: 100%;
@@ -109,9 +111,15 @@ export default {
       border: 1px solid;
       border-radius: 3px;
       font-size: 12px;
+      text-align: left;
       &.Bandle-City {
          border-color: $Bandle-City;
          background: linear-gradient(to right, $background, $Bandle-City);
+      }
+      &.Demacia {
+         border-color: $Demacia;
+         background: linear-gradient(to right, $background, $Demacia);
+         .count{ color: black !important; }
       }
       &.Freljord {
          border-color: $Freljord;
@@ -128,6 +136,10 @@ export default {
       &.Shurima {
          border-color: $Shurima;
          background: linear-gradient(to right, $background, $Shurima);
+      }
+      &.Targon {
+         border-color: $Targon;
+         background: linear-gradient(to right, $background, $Targon);
       }
 
       @media (max-width: $media-width) {

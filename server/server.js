@@ -30,7 +30,7 @@ db.once('open', () => {
 
 const authCheck = (req, res, next) => {
    if (req.headers['x-user-id']) {
-      console.log(`[${req.method}] ${req.url} - ${req.headers['x-user-id']}`);
+      console.log(`[${req.method}] ${req.url}`);
       next();
    } else {
       console.log(chalk.redBright('User id not defined'));
