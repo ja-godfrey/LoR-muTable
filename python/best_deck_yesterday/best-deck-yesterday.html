@@ -1,0 +1,48 @@
+<html>
+<head>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    .column {
+      float: left;
+      width: 33.33%;
+      padding: 5px;
+    }
+    
+    /* Clearfix (clear floats) */
+    .row::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+
+    </style>
+</head>
+  <body style="background-color:rgb(252, 237, 218);">
+     <h1> {{title}} </h1>
+     <p>{{intro_text}}</p>
+
+     <h2>{{top_arch_intro}}</h2>
+     <p>{{top_archetype_html}}</p>
+
+     <h2>{{best_deck_intro}}</h2>
+     <div class="ex1">
+        <p>{{test}}</p>
+      </div>
+
+     <h2>{{graph_intro}}</h2>
+     <div class="row">
+      <div class="column">
+        <img src="archetypePopularity.png" alt="How popular is this archetype?">
+      </div>
+      <div class="column">
+        <img src="deckPopularity.png" alt="How popular is this deck?">
+      </div>
+    </div>
+
+
+     <h2></h2>
+  </body>
+</html>

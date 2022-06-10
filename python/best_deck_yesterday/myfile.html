@@ -1,0 +1,126 @@
+<html>
+<head>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    .column {
+      float: left;
+      width: 33.33%;
+      padding: 5px;
+    }
+    
+    /* Clearfix (clear floats) */
+    .row::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+
+    </style>
+</head>
+  <body style="background-color:rgb(252, 237, 218);">
+     <h1> What was the best deck on Apr 26, 2022? </h1>
+     <p>I analyzed 42120 games to discover yesterday's top-performing archetypes and decks</p>
+
+     <h2>Azir Xerath is yesterdays top archetype. <br> Here are the 10 other best archetypes:</h2>
+     <p><table border="1" class="dataframe table table-stripped">
+  <thead>
+    <tr style="text-align: right;">
+      <th>archetype</th>
+      <th>winrate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Azir Xerath</td>
+      <td>54.0</td>
+    </tr>
+    <tr>
+      <td>Elise Vi Jayce</td>
+      <td>55.0</td>
+    </tr>
+    <tr>
+      <td>Ezreal Caitlyn (NX)</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>Fizz Lulu (BC PZ)</td>
+      <td>57.0</td>
+    </tr>
+    <tr>
+      <td>Miss Fortune Quinn</td>
+      <td>56.0</td>
+    </tr>
+    <tr>
+      <td>Miss Fortune Twisted Fate (NX)</td>
+      <td>57.0</td>
+    </tr>
+    <tr>
+      <td>Miss Fortune Twisted Fate Gangplank (NX)</td>
+      <td>57.0</td>
+    </tr>
+    <tr>
+      <td>Riven Viktor</td>
+      <td>51.0</td>
+    </tr>
+    <tr>
+      <td>Taliyah Ziggs (BC)</td>
+      <td>51.0</td>
+    </tr>
+    <tr>
+      <td>Tryndamere Trundle (SI)</td>
+      <td>54.0</td>
+    </tr>
+    <tr>
+      <td>Viego (SH)</td>
+      <td>52.0</td>
+    </tr>
+  </tbody>
+</table></p>
+
+     <h2>Here are the best decks from yesterday:</h2>
+     <div class="ex1">
+        <p><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: left;">
+      <th>winrate</th>
+      <th>archetype</th>
+      <th>deck_code</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>57.0</td>
+      <td>Azir Xerath</td>
+      <td>CQBACBIHBYDAIBYDDQSSMNTNAMAQKCWAAEBAKBYHBMDAIBYNDI5UQTDZAEAQIBZ6</td>
+    </tr>
+    <tr>
+      <td>56.0</td>
+      <td>Ezreal Elise Kindred</td>
+      <td>CQEACAIFAEAQGBIQAECAIBYBAQCQKAIFBKMACAIFAUHQEAIEDM2AEBIEBQMAEAIFAUFQEAIFFA2QGAIBAQSACAYEBMBACBJBGE</td>
+    </tr>
+    <tr>
+      <td>56.0</td>
+      <td>Fizz Lulu (BC PZ)</td>
+      <td>CQDACAQGFYAQGAQCAEBQIEQBAQCBABABAQGCOLJUAQCQU33YUYA4AAIBAICQU5EIAEAA</td>
+    </tr>
+  </tbody>
+</table></p>
+      </div>
+
+     <h2>This deck is new and this archetype is new</h2>
+     <div class="row">
+      <div class="column">
+        <img src="archetypePopularity.png" alt="How popular is this archetype?">
+      </div>
+      <div class="column">
+        <img src="deckPopularity.png" alt="How popular is this deck?">
+      </div>
+    </div>
+
+
+     <h2></h2>
+  </body>
+</html>
