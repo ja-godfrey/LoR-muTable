@@ -2,10 +2,6 @@
 export default {
    name: 'base-header',
    inject: ['auth'],
-
-   created() {
-      console.log(this.auth.user?.sub);
-   },
 };
 </script>
 

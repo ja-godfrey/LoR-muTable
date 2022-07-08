@@ -158,6 +158,7 @@ export default {
                :to="`/vault/${deck._id}`"
                :class="['link', 'deck', { selected: deck._id === $route.params.id }]"
                @click="reopenDeckMobile(deck._id)"
+               replace
             >
                <span>{{ deck.name }}</span>
                <span v-if="deck.favorite">&#10033;</span>

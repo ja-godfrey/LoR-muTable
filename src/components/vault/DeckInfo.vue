@@ -274,6 +274,7 @@ export default {
          align-items: center;
          color: #ccc8;
          font-size: 12px;
+         cursor: default;
       }
    }
 

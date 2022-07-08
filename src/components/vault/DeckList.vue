@@ -13,6 +13,7 @@ export default {
    setup(props) {
       const regions = toRef(props, 'deckRegions');
       const deckList = computed(() => props.deckCode ? DeckEncoder.decode(props.deckCode).map(summary => {
+         console.log(summary);
          const card = cards.find(c => c.cardCode === summary.code);
          return {
             name: card.name,
@@ -50,7 +51,7 @@ export default {
 
       <a v-for="card in deckList"
          :key="card.code"
-         :class="['card', 'link', card.region]"
+         :class="['card', 'link', card.region.replace('&', 'and')]"
          :href="`https://lor.mobalytics.gg/cards/${card.code}`"
          target="__blank"
       >
@@ -116,6 +117,10 @@ export default {
          border-color: $Bandle-City;
          background: linear-gradient(to right, $background, $Bandle-City);
       }
+      &.Bilgewater {
+         border-color: $Bilgewater;
+         background: linear-gradient(to right, $background, $Bilgewater);
+      }
       &.Demacia {
          border-color: $Demacia;
          background: linear-gradient(to right, $background, $Demacia);
@@ -125,9 +130,17 @@ export default {
          border-color: $Freljord;
          background: linear-gradient(to right, $background, $Freljord);
       }
+      &.Ionia {
+         border-color: $Ionia;
+         background: linear-gradient(to right, $background, $Ionia);
+      }
       &.Noxus {
          border-color: $Noxus;
          background: linear-gradient(to right, $background, $Noxus);
+      }
+      &.Piltover-and-Zaun {
+         border-color: $Piltover-and-Zaun;
+         background: linear-gradient(to right, $background, $Piltover-and-Zaun);
       }
       &.Shadow-Isles {
          border-color: $Shadow-Isles;
@@ -141,14 +154,18 @@ export default {
          border-color: $Targon;
          background: linear-gradient(to right, $background, $Targon);
       }
+      &.Runeterra {
+         border-color: $Runeterra;
+         background: linear-gradient(to right, $background, $Runeterra);
+      }
 
       @media (max-width: $media-width) {
          font-size: 16px;
       }
 
       .number {
-         height: $card-height;
-         width: $card-height;
+         min-height: $card-height;
+         min-width: $card-height;
          display: flex;
          justify-content: center;
          align-items: center;
@@ -171,6 +188,8 @@ export default {
 
       .count {
          @extend .number;
+         font-size: 14px;
+         -webkit-text-stroke: .3px black;
       }
    }
 }

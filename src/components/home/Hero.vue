@@ -47,19 +47,26 @@ export default {
    .arrow {
       height: 40px;
       width: 30px;
-      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid transparent;
       position: absolute;
       top: 50%;
       z-index: 3;
       transform: translateY(-50%);
       -webkit-transform: translateY(-50%);
+      color: black;
       cursor: pointer;
       &.left {
          left: 0px;
+         &::before { content: "<" }
       }
       &.right {
          right: 0px;
+         &::before { content: ">" }
       }
+      &:hover { border-color: black; }
    }
 
    .pagination {

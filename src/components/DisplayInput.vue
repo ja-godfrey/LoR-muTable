@@ -54,8 +54,9 @@ export default {
          handleCancel();
       };
 
-      const handleEnter = e => {
+      const handleDown = e => {
          if (!e.shiftKey && e.key === 'Enter') handleSave();
+         else if (e.key === 'Escape') handleCancel();
       };
 
       return {
@@ -66,7 +67,7 @@ export default {
          setChangesMade,
          newValue,
          setNewValue,
-         handleEnter,
+         handleDown,
          handleSave,
          handleCancel,
          handleCopy,
@@ -102,7 +103,7 @@ export default {
             :name="name"
             :value="changesMade ? newValue : value"
             @input="e => setNewValue(e.target.value)"
-            @keypress="handleEnter"
+            @keydown="handleDown"
             @focus="$event.target.select()"
          />
          <ButtonRow class="controls">
