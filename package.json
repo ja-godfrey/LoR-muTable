@@ -30,7 +30,7 @@
       "lodash": "^4.17.21",
       "mongoose": "^6.2.0",
       "register-service-worker": "^1.7.1",
-      "runeterra": "^3.0.0",
+      "runeterra": "^4.0.0",
       "vue": "^3.0.0",
       "vue-auth0-plugin": "^2.5.1",
       "vue-router": "^4.0.0-0",
